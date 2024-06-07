@@ -13,6 +13,7 @@
 #include "../r3000a.h"
 
 #include "mem.h"
+#include <memory/mappedmemory.h>
 
 void wiiu_clear_cache(void *start, void *end);
 
@@ -83,7 +84,7 @@ int lightrec_init_mmap(void) {
 		goto cleanup_allocations;
 	}
 
-	code_buffer = WUP_RWX_MEM_BASE;
+	code_buffer = MEMAllocFromMappedMemoryEx(CODE_BUFFER_SIZE, 4);
 
 	return 0;
 
@@ -101,6 +102,7 @@ void lightrec_free_mmap(void) {
 	wiiu_unmap(psxP, 0x10000);
 	wiiu_unmap(psxH, 0x10000);
 	wiiu_unmap(psxR, 0x80000);
+	MEMFreeToMappedMemory(code_buffer);
 	free(psx_mem);
 	free(psx_parallel);
 	free(psx_scratch);

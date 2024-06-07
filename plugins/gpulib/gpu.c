@@ -235,7 +235,7 @@ static noinline void get_gpu_info(uint32_t data)
 	// fills. (Will change this value if it ever gets large page support)
 	#define VRAM_ALIGN 8192
 #else
-	#define VRAM_ALIGN 16
+	#define VRAM_ALIGN 4096
 #endif
 
 // double, for overdraw guard + at least 1 page before

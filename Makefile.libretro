@@ -352,16 +352,24 @@ else ifneq (,$(filter $(platform),ngc wii wiiu))
 		CFLAGS += -DHW_RVL -mrvl
 		NEED_SYSCONF := 1
 	else ifeq ($(platform), wiiu)
+	WUMS_ROOT := $(DEVKITPRO)/wums
+	LIBDIRS += $(WUMS_ROOT)
 		# -mwup was removed in newer devkitPPC versions
 		CFLAGS += -DHW_WUP
 		CFLAGS += -I frontend/wiiu
-		CFLAGS += -DZ7_DECL_Int32_AS_long
+		CFLAGS += -I$(WUMS_ROOT)/include
+		CFLAGS += -lmappedmemory
+		LDFLAGS += -T$(WUMS_ROOT)/share/libmappedmemory.ld
+		# CFLAGS += -DZ7_DECL_Int32_AS_long
+		ifneq ($(WIIU_AUDIO_OPTIMIZATION_LEVEL),)
+           CFLAGS += -DWIIU_AUDIO_OPTIMIZATION_LEVEL=$(WIIU_AUDIO_OPTIMIZATION_LEVEL)
+        endif
 		LIGHTREC_CUSTOM_MAP := 1
 		LIGHTREC_CUSTOM_MAP_OBJ := libpcsxcore/lightrec/mem_wiiu.o
 		LIGHTREC_CODE_INV := 1
 	endif
 	ARCH = powerpc
-	BUILTIN_GPU = peops
+	BUILTIN_GPU = unai
 	CFLAGS += -D__ppc__ -D__powerpc__
 	CFLAGS += -DGEKKO -mcpu=750 -meabi -mhard-float
 	CFLAGS += -DNO_DYLIB
