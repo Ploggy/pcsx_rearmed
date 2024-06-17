@@ -348,9 +348,13 @@ else ifneq (,$(filter $(platform),ngc wii wiiu))
 	ifeq ($(platform), ngc)
 		CFLAGS += -DHW_DOL -mogc
 		NEED_SYSCONF := 1
+		THREAD_RENDERING := 0
+		NO_PTHREAD := 1
 	else ifeq ($(platform), wii)
 		CFLAGS += -DHW_RVL -mrvl
 		NEED_SYSCONF := 1
+		THREAD_RENDERING := 0
+		NO_PTHREAD := 1
 	else ifeq ($(platform), wiiu)
 	WUMS_ROOT := $(DEVKITPRO)/wums
 	LIBDIRS += $(WUMS_ROOT)
@@ -367,6 +371,11 @@ else ifneq (,$(filter $(platform),ngc wii wiiu))
 		LIGHTREC_CUSTOM_MAP := 1
 		LIGHTREC_CUSTOM_MAP_OBJ := libpcsxcore/lightrec/mem_wiiu.o
 		LIGHTREC_CODE_INV := 1
+		CFLAGS += -I$(DEVKITPRO)/wut/include		
+		CFLAGS += -D_POSIX_THREADS
+		OBJS += frontend/wiiu/pthread_wiiu.o
+		THREAD_RENDERING := 1
+		NO_PTHREAD := 0
 	endif
 	ARCH = powerpc
 	BUILTIN_GPU = unai
@@ -374,8 +383,6 @@ else ifneq (,$(filter $(platform),ngc wii wiiu))
 	CFLAGS += -DGEKKO -mcpu=750 -meabi -mhard-float
 	CFLAGS += -DNO_DYLIB
 	STATIC_LINKING := 1
-	THREAD_RENDERING := 0
-	NO_PTHREAD := 1
 	NO_MMAP := 1
 	NO_POSIX_MEMALIGN := 1
 	LIBDL :=

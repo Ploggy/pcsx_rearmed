@@ -31,6 +31,10 @@
 #define TRUE 1
 #define BOOL unsigned short
 
+#ifdef HW_WUP
+#include "pthread_wiiu.h"
+#endif
+
 typedef struct {
 	uint32_t *cmd_list;
 	int count;
@@ -225,7 +229,11 @@ static void video_thread_start() {
 			pthread_cond_init(&thread.cond_msg_done, NULL) ||
 			pthread_cond_init(&thread.cond_queue_empty, NULL) ||
 			pthread_mutex_init(&thread.queue_lock, NULL) ||
+			#ifdef HW_WUP
+			pthread_create_wiiu_core(&thread.thread, video_thread_main, &thread, 0)) {
+			#else
 			pthread_create(&thread.thread, NULL, video_thread_main, &thread)) {
+			#endif
 		goto error;
 	}
 
