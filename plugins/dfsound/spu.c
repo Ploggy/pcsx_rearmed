@@ -1260,6 +1260,12 @@ static void do_samples_finish(int *SSumLR, int ns_to,
   int vol_r = ((int)regAreaGet(H_SPUmvolR) << 17) >> 17;
   int ns;
   int d;
+ 
+  // safety before writing into buffer last passed to wiiu audio driver for reading
+  #if WIIU_AUDIO_OPTIMIZATION_LEVEL == 3
+  extern void axpro_audio_wait_fence_core(void* client_buffer);
+  axpro_audio_wait_fence_core(spu.pSpuBuffer); // no-op when not using axpro audio driver
+  #endif
 
   // must clear silent channel decode buffers
   if(unlikely(silentch & spu.decode_dirty_ch & (1<<1)))
