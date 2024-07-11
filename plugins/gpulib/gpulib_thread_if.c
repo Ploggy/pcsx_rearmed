@@ -223,17 +223,26 @@ static void video_thread_stop() {
 }
 
 static void video_thread_start() {
-	fprintf(stdout, "Starting render thread\n");
+    pthread_attr_t* create_attr = NULL;
 
+#ifdef HW_WUP
+    pthread_attr_t wiiu_create_attr;
+    {
+        cpu_set_t cpuset;
+        pthread_attr_init(&wiiu_create_attr);
+        CPU_ZERO(&cpuset);
+        CPU_SET(0, &cpuset); // run the thread on CPU 0 on WiiU (1 is "main", total 3 CPUs)
+        pthread_attr_setaffinity_np(&wiiu_create_attr, sizeof(cpu_set_t), &cpuset);
+        create_attr = &wiiu_create_attr;
+    }
+#endif
+
+    fprintf(stdout, "Starting render thread\n");
 	if (pthread_cond_init(&thread.cond_msg_avail, NULL) ||
 			pthread_cond_init(&thread.cond_msg_done, NULL) ||
 			pthread_cond_init(&thread.cond_queue_empty, NULL) ||
 			pthread_mutex_init(&thread.queue_lock, NULL) ||
-			#ifdef HW_WUP
-			pthread_create_wiiu_core(&thread.thread, video_thread_main, &thread, 0)) {
-			#else
-			pthread_create(&thread.thread, NULL, video_thread_main, &thread)) {
-			#endif
+			pthread_create(&thread.thread, create_attr, video_thread_main, &thread)) {
 		goto error;
 	}
 
